@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -198,7 +199,7 @@ public class GeoJSONGetFeatureResponse extends WFSGetFeatureOutputFormat {
                         for (int j = 0; j < types.size(); j++) {
                             Object value = feature.getAttribute(j);
                             AttributeDescriptor ad = types.get(j);
-                            
+
                             if( id_option != null && id_option.equals(ad.getLocalName()) ){
                             	continue; // skip this value as it is used as the id
                             }

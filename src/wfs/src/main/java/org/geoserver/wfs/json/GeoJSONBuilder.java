@@ -7,6 +7,8 @@ package org.geoserver.wfs.json;
 
 import java.io.Writer;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import net.sf.json.JSONException;
@@ -286,6 +288,40 @@ public class GeoJSONBuilder extends JSONBuilder {
                 "Unable to determine geometry type " + geometry.getClass());
         }
     }
+
+
+
+    public JSONBuilder writeList(List list) {
+        this.array();
+        for (final Object o: list) {
+            this.value(o);
+        }
+        return this.endArray();
+    }
+
+    public JSONBuilder writeMap(Map map) {
+        this.object();
+        for (final Object k: map.keySet()) {
+            this.key(k.toString());
+            final Object v = map.get(k);
+            this.value(v);
+        }
+        return this.endObject();
+    }
+
+//    public JSONBuilder extendedValue(Object v) {
+//        if (v == null) {
+//            return this.value(v);
+//        } else if (v instanceof Geometry) {
+//            return this.writeGeom((Geometry) v);
+//        } else if (v instanceof List) {
+//            return this.writeList((List)v);
+//        } else if (v instanceof Map) {
+//            return this.writeMap((Map)v);
+//        } else {
+//            return this.value(v);
+//        }
+//    }
     
     /**
      * Overrides to handle the case of encoding {@code java.util.Date} and its date/time/timestamp
@@ -295,10 +331,20 @@ public class GeoJSONBuilder extends JSONBuilder {
      */
     @Override
     public GeoJSONBuilder value(Object value) {
-        if (value instanceof java.util.Date || value instanceof Calendar) {
-            value = Converters.convert(value, String.class);
+        if (value == null) {
+            super.value(value);
+        } else if (value instanceof Geometry) {
+            this.writeGeom((Geometry) value);
+        } else if (value instanceof List) {
+            this.writeList((List)value);
+        } else if (value instanceof Map) {
+            this.writeMap((Map)value);
+        } else {
+            if (value instanceof java.util.Date || value instanceof Calendar) {
+                value = Converters.convert(value, String.class);
+            }
+            super.value(value);
         }
-        super.value(value);
         return this;
     }
     
