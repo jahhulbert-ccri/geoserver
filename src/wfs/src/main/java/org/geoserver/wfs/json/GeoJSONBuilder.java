@@ -1,4 +1,4 @@
-/* (c) 2014 Open Source Geospatial Foundation - all rights reserved
+/* (c) 2014 - 2016 Open Source Geospatial Foundation - all rights reserved
  * (c) 2001 - 2013 OpenPlans
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
@@ -289,9 +289,14 @@ public class GeoJSONBuilder extends JSONBuilder {
         }
     }
 
-
-
-    public JSONBuilder writeList(List list) {
+    /**
+     * Write a java.util.List out as a JSON Array. The values of the array will be converted
+     * using ike standard primitive conversions. If the list contains List or Map objects, they
+     * will be serialized as JSON Arrays and JSON Objects respectively.
+     *
+     * @param list a java.util.List to be serialized as JSON Array
+     */
+    public JSONBuilder writeList(final List list) {
         this.array();
         for (final Object o: list) {
             this.value(o);
@@ -299,34 +304,31 @@ public class GeoJSONBuilder extends JSONBuilder {
         return this.endArray();
     }
 
-    public JSONBuilder writeMap(Map map) {
+    /**
+     * Write a java.util.Map out as a JSON Object. Keys are serialized using the toString method
+     * of the object and values are serialized using primitives conversions. If a value in the map
+     * is a List or Map object, it will be serialized as JSON Array or JSON Object respectively.
+     *
+     * @param map a java.util.Map object to be serialized as a JSON Object
+     */
+    public JSONBuilder writeMap(final Map map) {
         this.object();
         for (final Object k: map.keySet()) {
             this.key(k.toString());
-            final Object v = map.get(k);
-            this.value(v);
+            this.value(map.get(k));
         }
         return this.endObject();
     }
 
-//    public JSONBuilder extendedValue(Object v) {
-//        if (v == null) {
-//            return this.value(v);
-//        } else if (v instanceof Geometry) {
-//            return this.writeGeom((Geometry) v);
-//        } else if (v instanceof List) {
-//            return this.writeList((List)v);
-//        } else if (v instanceof Map) {
-//            return this.writeMap((Map)v);
-//        } else {
-//            return this.value(v);
-//        }
-//    }
-    
     /**
-     * Overrides to handle the case of encoding {@code java.util.Date} and its date/time/timestamp
+     * Overrides handling of specialized types.
+     *
+     * Overrides the encoding {@code java.util.Date} and its date/time/timestamp
      * descendants, as well as {@code java.util.Calendar} instances as ISO 8601 strings.
-     * 
+     *
+     * Overrides the handling of java.util.Map, java.util.List, and Geometry objects
+     * as well.
+     *
      * @see net.sf.json.util.JSONBuilder#value(java.lang.Object)
      */
     @Override
